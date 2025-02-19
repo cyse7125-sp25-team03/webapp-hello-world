@@ -63,6 +63,8 @@ node {
     stage('Tag Repository') {
         withCredentials([usernamePassword(credentialsId: 'github-pat', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
             sh """
+                git config user.email "jenkins@csyeteam03.xyz"
+                git config user.name "Automated Release Bot"
                 git tag -a ${NEW_VERSION} -m "Release ${NEW_VERSION}"
                 git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/cyse7125-sp25-team03/webapp-hello-world.git ${NEW_VERSION}
             """
