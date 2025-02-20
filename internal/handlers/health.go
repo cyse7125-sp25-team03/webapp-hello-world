@@ -36,7 +36,7 @@ func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	db := database.GetDB()
 
 	// Try to insert health check record
-	_, err := db.Exec("INSERT INTO webapp.health_checks (datetime) VALUES (CURRENT_TIMESTAMP)")
+	_, err := db.Exec("INSERT INTO webapp.health_checks (checked_at) VALUES (CURRENT_TIMESTAMP)")
 	if err != nil {
 		// Log the error for debugging purposes
 		log.Printf("Error inserting health check: %v", err)
