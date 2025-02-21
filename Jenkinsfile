@@ -28,8 +28,6 @@ node {
                 # Get latest tag or default to v0.0.0 if none exists
                 LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
                 
-                echo "Latest tag found: $LATEST_TAG"
-                
                 MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | tr -d 'v')
                 MINOR=$(echo $LATEST_TAG | cut -d. -f2)
                 PATCH=$(echo $LATEST_TAG | cut -d. -f3)
@@ -52,7 +50,6 @@ node {
                 fi
                 
                 NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
-                echo "Initial calculated version: $NEW_VERSION ($VERSION_TYPE change)"
                 
                 # Check if tag already exists and handle according to semantic versioning
                 while git rev-parse "$NEW_VERSION" >/dev/null 2>&1 || git ls-remote --tags origin | grep -q "refs/tags/${NEW_VERSION}"; do
