@@ -87,12 +87,19 @@ node {
 
     stage('Build and Push multi-platform image') {
         withCredentials([usernamePassword(credentialsId: 'docker-pat', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_TOKEN')]) {
+            // Login to Docker
             sh """
                 docker login -u ${DOCKER_USERNAME} -p ${DOCKER_TOKEN}
+            """
+            
+            // Setup buildx
+            sh """
                 docker buildx create --use --name builder || docker buildx use builder
                 docker buildx inspect --bootstrap
-
-                # Build and push the multi-platform image
+            """
+            
+            // Build and push multi-platform image
+            sh """
                 docker buildx build \\
                     --platform linux/amd64,linux/arm64 \\
                     -t roarceus/webapp-hello-world:${NEW_VERSION} \\
