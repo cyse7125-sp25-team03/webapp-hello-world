@@ -52,7 +52,7 @@ node {
 
                 # Build and push the multi-platform image
                 docker buildx build \\
-                    --platform linux/amd64,linux/arm64,linux/arm/v7 \\
+                    --platform linux/amd64,linux/arm64 \\
                     -t roarceus/webapp-hello-world:${NEW_VERSION} \\
                     -t roarceus/webapp-hello-world:latest \\
                     --push .
