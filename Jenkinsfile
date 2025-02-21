@@ -100,10 +100,10 @@ node {
             
             // Build and push multi-platform image
             sh """
-                docker buildx build \\
-                    --platform linux/amd64,linux/arm64 \\
-                    -t roarceus/webapp-hello-world:${NEW_VERSION} \\
-                    -t roarceus/webapp-hello-world:latest \\
+                docker buildx build \
+                    --platform linux/amd64,linux/arm64 \
+                    -t roarceus/webapp-hello-world:${NEW_VERSION} \
+                    -t roarceus/webapp-hello-world:latest \
                     --push .
             """
         }
