@@ -2,19 +2,7 @@ node {
     def NEW_VERSION
 
     stage('Clone repository') {
-        withCredentials([usernamePassword(credentialsId: 'github-pat', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
-        checkout([$class: 'GitSCM',
-                branches: [[name: '*/main']],
-                extensions: [[$class: 'CloneOption',
-                            noTags: false,
-                            shallow: false,
-                            depth: 0,
-                            reference: '']],
-                userRemoteConfigs: [[
-                    url: "https://${GITHUB_TOKEN}@github.com/cyse7125-sp25-team03/webapp-hello-world.git",
-                    credentialsId: 'github-pat'
-                ]]])
-        }
+        checkout scm
     }
 
     stage('Calculate Version') {
