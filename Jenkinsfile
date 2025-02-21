@@ -2,7 +2,14 @@ node {
     def NEW_VERSION
 
     stage('Clone repository') {
-        checkout scm
+        checkout([$class: 'GitSCM', 
+                  branches: [[name: '*/main']], // Adjust branch as needed
+                  extensions: [[$class: 'CloneOption', 
+                               noTags: false, 
+                               shallow: false, 
+                               depth: 0, 
+                               reference: '']], 
+                  userRemoteConfigs: [[url: 'https://github.com/cyse7125-sp25-team03/webapp-hello-world.git']]])
     }
 
     stage('Calculate Version') {
@@ -11,7 +18,13 @@ node {
             writeFile file: 'calculate_version.sh', text: '''
             #!/bin/bash
             calculate_version() {
+                # Fetch all tags first
+                git fetch --tags
+                
+                # Get latest tag or default to v0.0.0 if none exists
                 LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+                
+                echo "Latest tag found: $LATEST_TAG"
                 
                 MAJOR=$(echo $LATEST_TAG | cut -d. -f1 | tr -d 'v')
                 MINOR=$(echo $LATEST_TAG | cut -d. -f2)
@@ -19,18 +32,44 @@ node {
                 
                 COMMIT_MSG=$(git log -1 --pretty=%B)
                 
+                # Determine version bump type based on commit message
                 if echo "$COMMIT_MSG" | grep -qE "^[a-z]+\\([a-z]+\\)!:" || echo "$COMMIT_MSG" | grep -q "BREAKING CHANGE"; then
+                    VERSION_TYPE="MAJOR"
                     MAJOR=$((MAJOR + 1))
                     MINOR=0
                     PATCH=0
                 elif echo "$COMMIT_MSG" | grep -qE "^feat\\([a-z]+\\):"; then
+                    VERSION_TYPE="MINOR"
                     MINOR=$((MINOR + 1))
                     PATCH=0
                 else
+                    VERSION_TYPE="PATCH"
                     PATCH=$((PATCH + 1))
                 fi
                 
-                echo "v$MAJOR.$MINOR.$PATCH"
+                NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+                echo "Initial calculated version: $NEW_VERSION ($VERSION_TYPE change)"
+                
+                # Check if tag already exists and handle according to semantic versioning
+                while git rev-parse "$NEW_VERSION" >/dev/null 2>&1 || git ls-remote --tags origin | grep -q "refs/tags/${NEW_VERSION}"; do
+                    echo "Warning: Tag $NEW_VERSION already exists, incrementing according to change type"
+                    
+                    if [ "$VERSION_TYPE" = "MAJOR" ]; then
+                        MAJOR=$((MAJOR + 1))
+                        MINOR=0
+                        PATCH=0
+                    elif [ "$VERSION_TYPE" = "MINOR" ]; then
+                        MINOR=$((MINOR + 1))
+                        PATCH=0
+                    else
+                        PATCH=$((PATCH + 1))
+                    fi
+                    
+                    NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+                    echo "Trying new version: $NEW_VERSION"
+                done
+                
+                echo "$NEW_VERSION"
             }
 
             NEW_VERSION=$(calculate_version)
