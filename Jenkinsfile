@@ -20,8 +20,7 @@ node {
     stage('Calculate Version') {
         script {
             // Create version calculation script
-            writeFile file: 'calculate_version.sh', text: '''
-            #!/bin/bash
+            writeFile file: 'calculate_version.sh', text: '''#!/bin/bash
             calculate_version() {
                 # Fetch all tags first
                 git fetch --tags
@@ -77,12 +76,11 @@ node {
                 echo "$NEW_VERSION"
             }
 
-            NEW_VERSION=$(calculate_version)
-            echo $NEW_VERSION
+            calculate_version
             '''
-            // Make script executable and run it
-            sh 'chmod +x calculate_version.sh'
-            NEW_VERSION = sh(returnStdout: true, script: './calculate_version.sh').trim()
+            // Make script executable and run it with bash explicitly
+            sh 'chmod 755 calculate_version.sh'
+            NEW_VERSION = sh(returnStdout: true, script: '/bin/bash calculate_version.sh').trim()
             echo "Building version: ${NEW_VERSION}"
         }
     }
