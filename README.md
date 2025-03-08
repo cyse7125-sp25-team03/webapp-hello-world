@@ -30,6 +30,7 @@ This project implements a web application in Go that provides a RESTful API to p
 ├── Jenkinsfile.commitlint
 ```
 
+
 ## RESTful API Details
 ### Endpoint: `/healthz`
 - **Method:** `GET`
